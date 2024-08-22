@@ -19,6 +19,7 @@ paths:
                   status:
                     type: string
                     example: ok
+
   /pets/{id}:
     get:
       summary: Get a pet by ID
@@ -47,6 +48,9 @@ paths:
             application/json; charset=utf-8:
               schema:
                 $ref: '#/components/schemas/Error'
+      security:
+        - JWT: []
+
     put:
       summary: Update a pet by ID
       parameters:
@@ -73,6 +77,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PetUpdate'
+      security:
+        - JWT: []
+
   /pets:
     get:
       description: Get pets by name
@@ -104,6 +111,9 @@ paths:
             application/json; charset=utf-8:
               schema:
                 $ref: '#/components/schemas/Error'
+      security:
+        - JWT: []
+
     post:
       summary: Create a new pet
       responses:
@@ -124,6 +134,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Pet'
+      security:
+        - JWT: []
+
 components:
   schemas:
     Pet:
@@ -156,3 +169,10 @@ components:
       required:
         - name
         - type
+
+  securitySchemes:
+    JWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Backstage Permissions Framework JWT
