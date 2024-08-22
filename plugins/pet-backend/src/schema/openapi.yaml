@@ -1,0 +1,141 @@
+info:
+  title: Untitled service
+  version: 1.0.0
+openapi: 3.1.0
+paths:
+  /health:
+    get:
+      responses:
+        "200":
+          description: 200 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/GetHealth200ResponseBody"
+  /pets/{pet}:
+    parameters:
+      - in: path
+        name: pet
+        required: true
+        schema:
+          type: string
+    get:
+      responses:
+        "200":
+          description: 200 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/GetPetsPet200ResponseBody"
+        "404":
+          description: 404 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/GetPetsPet404ResponseBody"
+    put:
+      responses:
+        "200":
+          description: 200 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/GetPetsPet200ResponseBody"
+        "404":
+          description: 404 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/GetPetsPet404ResponseBody"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PutPetsPetRequestBody"
+  /pets:
+    get:
+      responses:
+        "200":
+          description: 200 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GetPetsPet200ResponseBody"
+        "404":
+          description: 404 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/GetPetsPet404ResponseBody"
+        "400":
+          description: 400 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/GetPetsPet404ResponseBody"
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: name
+          required: false
+    post:
+      responses:
+        "201":
+          description: 201 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/GetPetsPet200ResponseBody"
+        "409":
+          description: 409 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/GetPetsPet404ResponseBody"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetPetsPet200ResponseBody"
+components:
+  schemas:
+    GetHealth200ResponseBody:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    GetPetsPet200ResponseBody:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+      required:
+        - id
+        - name
+        - type
+    GetPetsPet404ResponseBody:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+    PutPetsPetRequestBody:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+      required:
+        - name
+        - type
