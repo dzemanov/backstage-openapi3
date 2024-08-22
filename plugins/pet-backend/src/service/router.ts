@@ -4,7 +4,7 @@ import {
   RootConfigService,
 } from '@backstage/backend-plugin-api';
 import express from 'express';
-import Router from 'express-promise-router';
+import { createOpenApiRouter } from '../schema/openapi.generated';
 import { pets } from '../../dev/pets';
 
 export interface RouterOptions {
@@ -17,7 +17,7 @@ export async function createRouter(
 ): Promise<express.Router> {
   const { logger, config } = options;
 
-  const router = Router();
+  const router = await createOpenApiRouter();
   router.use(express.json());
 
   router.get('/health', (_, response) => {
@@ -43,12 +43,6 @@ export async function createRouter(
 
   router.get('/pets', async (req, res) => {
     const { name } = req.query;
-
-    if (!name) {
-      return res
-        .status(400)
-        .json({ error: 'Name query parameter is required' });
-    }
 
     const filteredPets = pets.filter(
       pet => pet.name.toLowerCase() === (name as string).toLowerCase(),

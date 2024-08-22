@@ -3,7 +3,7 @@ info:
   version: 1.0.0
   description: API for managing pets.
 
-openapi: 3.1.0
+openapi: 3.0.0
 paths:
   /health:
     get:
@@ -19,16 +19,16 @@ paths:
                   status:
                     type: string
                     example: ok
+
   /pets/{id}:
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: string
     get:
       summary: Get a pet by ID
       parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
         - name: type
           in: query
           required: false
@@ -48,17 +48,26 @@ paths:
             application/json; charset=utf-8:
               schema:
                 $ref: '#/components/schemas/Error'
+      security:
+        - JWT: []
+
     put:
       summary: Update a pet by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
       responses:
         '200':
-          description: 200 response
+          description: Pet updated
           content:
             application/json; charset=utf-8:
               schema:
                 $ref: '#/components/schemas/Pet'
         '404':
-          description: 404 response
+          description: Pet not found
           content:
             application/json; charset=utf-8:
               schema:
@@ -68,13 +77,16 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PetUpdate'
+      security:
+        - JWT: []
+
   /pets:
     get:
       description: Get pets by name
       parameters:
         - name: name
           in: query
-          required: false
+          required: true
           description: Name of the pet to retrieve
           schema:
             type: string
@@ -99,6 +111,9 @@ paths:
             application/json; charset=utf-8:
               schema:
                 $ref: '#/components/schemas/Error'
+      security:
+        - JWT: []
+
     post:
       summary: Create a new pet
       responses:
@@ -119,6 +134,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Pet'
+      security:
+        - JWT: []
+
 components:
   schemas:
     Pet:
@@ -148,6 +166,10 @@ components:
           type: string
         type:
           type: string
-      required:
-        - name
-        - type
+
+  securitySchemes:
+    JWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Backstage Permissions Framework JWT
