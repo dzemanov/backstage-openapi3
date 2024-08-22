@@ -5,13 +5,12 @@ import {
 } from '@backstage/backend-plugin-api';
 import express from 'express';
 import Router from 'express-promise-router';
+import { pets } from '../../dev/pets';
 
 export interface RouterOptions {
   logger: LoggerService;
   config: RootConfigService;
 }
-
-const pets: Pet[] = [];
 
 export async function createRouter(
   options: RouterOptions,
