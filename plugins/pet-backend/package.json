@@ -28,6 +28,7 @@
     "@backstage/backend-defaults": "^0.4.2",
     "@backstage/backend-openapi-utils": "^0.1.16",
     "@backstage/backend-plugin-api": "^0.8.0",
+    "@backstage/plugin-catalog-backend-module-backstage-openapi": "^0.3.0",
     "express": "^4.17.1",
     "express-promise-router": "^4.1.0",
     "node-fetch": "^2.6.7"
