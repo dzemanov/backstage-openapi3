@@ -44,12 +44,6 @@ export async function createRouter(
   router.get('/pets', async (req, res) => {
     const { name } = req.query;
 
-    if (!name) {
-      return res
-        .status(400)
-        .json({ error: 'Name query parameter is required' });
-    }
-
     const filteredPets = pets.filter(
       pet => pet.name.toLowerCase() === (name as string).toLowerCase(),
     );

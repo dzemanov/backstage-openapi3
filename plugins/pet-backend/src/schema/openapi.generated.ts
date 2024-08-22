@@ -143,7 +143,7 @@ export const spec = {
           {
             name: 'name',
             in: 'query',
-            required: false,
+            required: true,
             description: 'Name of the pet to retrieve',
             schema: {
               type: 'string',

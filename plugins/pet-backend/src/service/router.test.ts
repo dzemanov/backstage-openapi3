@@ -96,8 +96,9 @@ describe('createRouter', () => {
         .set('Authorization', 'Bearer dummy-token');
 
       expect(response.status).toEqual(400);
-      expect(response.body).toEqual({
-        error: 'Name query parameter is required',
+      expect(response.body.error).toEqual({
+        name: 'InputError',
+        message: "request/query must have required property 'name'",
       });
     });
   });
