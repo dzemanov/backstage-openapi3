@@ -6,12 +6,12 @@
 import { createValidatedOpenApiRouter } from '@backstage/backend-openapi-utils';
 
 export const spec = {
+  openapi: '3.0.0',
   info: {
     title: 'Pet API',
     version: '1.0.0',
     description: 'API for managing pets.',
   },
-  openapi: '3.0.0',
   paths: {
     '/health': {
       get: {
@@ -81,6 +81,7 @@ export const spec = {
           },
         },
         security: [
+          {},
           {
             JWT: [],
           },
@@ -130,6 +131,7 @@ export const spec = {
           },
         },
         security: [
+          {},
           {
             JWT: [],
           },
@@ -186,6 +188,7 @@ export const spec = {
           },
         },
         security: [
+          {},
           {
             JWT: [],
           },
@@ -225,6 +228,7 @@ export const spec = {
           },
         },
         security: [
+          {},
           {
             JWT: [],
           },

@@ -41,18 +41,14 @@ describe('createRouter', () => {
       const testPet = { id: '1', name: 'Fluffy', type: 'cat' };
       pets.push(testPet);
 
-      const response = await request(app)
-        .get('/pets/1')
-        .set('Authorization', 'Bearer dummy-token');
+      const response = await request(app).get('/pets/1');
 
       expect(response.status).toEqual(200);
       expect(response.body).toEqual(testPet);
     });
 
     it('returns 404 if pet not found', async () => {
-      const response = await request(app)
-        .get('/pets/1')
-        .set('Authorization', 'Bearer dummy-token');
+      const response = await request(app).get('/pets/1');
       expect(response.status).toEqual(404);
       expect(response.body).toEqual({ error: 'Pet not found' });
     });
@@ -71,9 +67,7 @@ describe('createRouter', () => {
         { id: '3', name: 'Fluffy', type: 'dog' },
       ];
 
-      const response = await request(app)
-        .get('/pets?name=Fluffy')
-        .set('Authorization', 'Bearer dummy-token');
+      const response = await request(app).get('/pets?name=Fluffy');
 
       expect(response.status).toEqual(200);
       expect(response.body).toEqual(expected);
@@ -91,9 +85,7 @@ describe('createRouter', () => {
     });
 
     it('returns 400 if name query parameter is missing', async () => {
-      const response = await request(app)
-        .get('/pets')
-        .set('Authorization', 'Bearer dummy-token');
+      const response = await request(app).get('/pets');
 
       expect(response.status).toEqual(400);
       expect(response.body.error).toEqual({
@@ -107,10 +99,7 @@ describe('createRouter', () => {
     it('creates a new pet', async () => {
       const newPet = { id: '1', name: 'Fluffy', type: 'cat' };
 
-      const response = await request(app)
-        .post('/pets')
-        .send(newPet)
-        .set('Authorization', 'Bearer dummy-token');
+      const response = await request(app).post('/pets').send(newPet);
 
       expect(response.status).toEqual(201);
       expect(response.body).toEqual(newPet);
@@ -121,14 +110,23 @@ describe('createRouter', () => {
       const existingPet = { id: '1', name: 'Fluffy', type: 'cat' };
       pets.push(existingPet);
 
-      const response = await request(app)
-        .post('/pets')
-        .send(existingPet)
-        .set('Authorization', 'Bearer dummy-token');
+      const response = await request(app).post('/pets').send(existingPet);
 
       expect(response.status).toEqual(409);
       expect(response.body).toEqual({
         error: 'Pet with this ID already exists',
+      });
+    });
+
+    it('returns 400 if pet does not have required params', async () => {
+      const newPet = { id: '1', type: 'cat' };
+
+      const response = await request(app).post('/pets').send(newPet);
+
+      expect(response.status).toEqual(400);
+      expect(response.body.error).toEqual({
+        name: 'InputError',
+        message: "request/body must have required property 'name'",
       });
     });
   });
@@ -139,10 +137,7 @@ describe('createRouter', () => {
       const petToUpdate = { name: 'Whiskers', type: 'cat' };
       pets.push(existingPet);
 
-      const response = await request(app)
-        .put('/pets/1')
-        .send(petToUpdate)
-        .set('Authorization', 'Bearer dummy-token');
+      const response = await request(app).put('/pets/1').send(petToUpdate);
 
       expect(response.status).toEqual(200);
       expect(response.body).toEqual({ id: '1', ...petToUpdate });
@@ -152,8 +147,7 @@ describe('createRouter', () => {
     it('returns 404 if pet not found', async () => {
       const response = await request(app)
         .put('/pets/1')
-        .send({ name: 'Whiskers' })
-        .set('Authorization', 'Bearer dummy-token');
+        .send({ name: 'Whiskers' });
 
       expect(response.status).toEqual(404);
       expect(response.body).toEqual({ error: 'Pet not found' });
