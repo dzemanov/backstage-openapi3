@@ -1,5 +1,11 @@
-type Pet = {
-  id: string;
+export const enum PetType {
+  dog = 'dog',
+  cat = 'cat',
+  fish = 'fish',
+}
+
+export type Pet = {
+  id: number;
   name: string;
-  type: string;
+  petType: PetType;
 };

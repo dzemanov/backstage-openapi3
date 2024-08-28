@@ -1,9 +1,20 @@
+openapi: 3.0.0
 info:
   title: Pet API
   version: 1.0.0
   description: API for managing pets.
-
-openapi: 3.0.0
+# servers:
+#   - url: '{protocol}://{host}:{port}/{basePath}'
+#     variables:
+#       protocol:
+#         enum: [http, https]
+#         default: http
+#       host:
+#         default: localhost
+#       port:
+#         default: '7007'
+#       basePath:
+#         default: 'api/pet'
 paths:
   /health:
     get:
@@ -29,12 +40,6 @@ paths:
           required: true
           schema:
             type: string
-        - name: type
-          in: query
-          required: false
-          description: Type of the pet to filter by
-          schema:
-            type: string
       responses:
         '200':
           description: Pet found
@@ -49,6 +54,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
       security:
+        - {}
         - JWT: []
 
     put:
@@ -78,16 +84,17 @@ paths:
             schema:
               $ref: '#/components/schemas/PetUpdate'
       security:
+        - {}
         - JWT: []
 
   /pets:
     get:
-      description: Get pets by name
+      description: Get pets
       parameters:
         - name: name
           in: query
-          required: true
-          description: Name of the pet to retrieve
+          required: false
+          description: Name of the pets to retrieve
           schema:
             type: string
       responses:
@@ -99,19 +106,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Pet'
-        '404':
-          description: No pets found with the given name
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '400':
-          description: Name query parameter is required
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: '#/components/schemas/Error'
       security:
+        - {}
         - JWT: []
 
     post:
@@ -123,18 +119,42 @@ paths:
             application/json; charset=utf-8:
               schema:
                 $ref: '#/components/schemas/Pet'
-        '409':
-          description: Pet with this ID already exists
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: '#/components/schemas/Error'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Pet'
+              $ref: '#/components/schemas/PetCreate'
       security:
+        - {}
+        - JWT: []
+
+  /findPetsByType:
+    get:
+      description: Get pets by type
+      parameters:
+        - name: petType
+          in: query
+          required: true
+          description: type of the pets to retrieve
+          schema:
+            $ref: '#/components/schemas/PetType'
+      responses:
+        '200':
+          description: Pets found
+          content:
+            application/json; charset=utf-8:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pet'
+        '400':
+          description: Type query parameter is required
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - {}
         - JWT: []
 
 components:
@@ -143,11 +163,11 @@ components:
       type: object
       properties:
         id:
-          type: string
+          type: number
         name:
           type: string
-        type:
-          type: string
+        petType:
+          $ref: '#/components/schemas/PetType'
       required:
         - id
         - name
@@ -159,13 +179,29 @@ components:
           type: string
       required:
         - error
+    PetCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        petType:
+          $ref: '#/components/schemas/PetType'
+      required:
+        - name
+        - petType
     PetUpdate:
       type: object
       properties:
         name:
           type: string
-        type:
-          type: string
+        petType:
+          $ref: '#/components/schemas/PetType'
+    PetType:
+      type: string
+      enum:
+        - dog
+        - cat
+        - fish
 
   securitySchemes:
     JWT:
