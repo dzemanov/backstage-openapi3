@@ -4,8 +4,9 @@ import {
   RootConfigService,
 } from '@backstage/backend-plugin-api';
 import express from 'express';
-import { createOpenApiRouter } from '../schema/openapi.generated';
 import { pets } from '../../dev/pets';
+
+import { createOpenApiRouter } from '../schema/openapi.generated';
 
 export interface RouterOptions {
   logger: LoggerService;
