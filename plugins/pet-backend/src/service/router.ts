@@ -7,11 +7,14 @@ import express from 'express';
 import { pets } from '../../dev/pets';
 
 import { createOpenApiRouter } from '../schema/openapi.generated';
+import { Pet, PetType } from '../../dev/types';
 
 export interface RouterOptions {
   logger: LoggerService;
   config: RootConfigService;
 }
+
+let currentDummyId = 0;
 
 export async function createRouter(
   options: RouterOptions,
@@ -27,61 +30,51 @@ export async function createRouter(
   });
 
   router.get('/pets/:id', async (req, res) => {
-    const petId = req.params.id;
-    const { type } = req.query;
-
-    logger.info(`Fetching pet with ID: ${petId} and type: ${type}`);
-    const pet = pets.find(p => p.id === petId && (!type || p.type === type));
+    const petId = parseInt(req.params.id, 10);
+    const pet = pets.find(p => p.id === petId);
 
     if (pet) {
-      logger.info(`Found pet with ID: ${petId}`);
       res.json(pet);
     } else {
-      logger.info(`Pet with ID: ${petId} not found`);
       res.status(404).json({ error: 'Pet not found' });
     }
   });
 
   router.get('/pets', async (req, res) => {
     const { name } = req.query;
-
     const filteredPets = pets.filter(
-      pet => pet.name.toLowerCase() === (name as string).toLowerCase(),
+      pet => !name || pet.name.toLowerCase() === name.toLowerCase(),
     );
+    return res.json(filteredPets);
+  });
 
-    if (filteredPets.length > 0) {
-      logger.info(`Found ${filteredPets.length} pet(s) with name: ${name}`);
-      return res.json(filteredPets);
-    }
-
-    logger.info(`No pets found with name: ${name}`);
-    return res.status(404).json({ error: 'No pets found with the given name' });
+  router.get('/findPetsByType', async (req, res) => {
+    const { petType } = req.query;
+    const filteredPets = pets.filter(pet => pet.petType === petType);
+    return res.json(filteredPets);
   });
 
   router.post('/pets', async (req, res) => {
-    const { id, name, type } = req.body;
-
-    if (pets.some(p => p.id === id)) {
-      logger.info(`Pet with ID: ${id} already exists`);
-      return res.status(409).json({ error: 'Pet with this ID already exists' });
-    }
-
-    const newPet: Pet = { id, name, type };
+    const { name, petType } = req.body;
+    currentDummyId += 1;
+    const newPet: Pet = {
+      id: currentDummyId,
+      name,
+      petType: petType as PetType,
+    };
     pets.push(newPet);
-
-    logger.info(`Created new pet with ID: ${id}`);
     return res.status(201).json(newPet);
   });
 
   router.put('/pets/:id', async (req, res) => {
-    const petId = req.params.id;
-    const { name, type } = req.body;
+    const petId = parseInt(req.params.id);
+    const { name, petType } = req.body;
 
     const pet = pets.find(p => p.id === petId);
 
     if (pet) {
       pet.name = name || pet.name;
-      pet.type = type || pet.type;
+      pet.petType = (petType as PetType) || pet.petType;
 
       logger.info(`Updated pet with ID: ${petId}`);
       res.json({ ...pet });

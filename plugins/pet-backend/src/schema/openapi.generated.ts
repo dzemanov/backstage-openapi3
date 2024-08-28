@@ -48,15 +48,6 @@ export const spec = {
               type: 'string',
             },
           },
-          {
-            name: 'type',
-            in: 'query',
-            required: false,
-            description: 'Type of the pet to filter by',
-            schema: {
-              type: 'string',
-            },
-          },
         ],
         responses: {
           '200': {
@@ -140,13 +131,13 @@ export const spec = {
     },
     '/pets': {
       get: {
-        description: 'Get pets by name',
+        description: 'Get pets',
         parameters: [
           {
             name: 'name',
             in: 'query',
-            required: true,
-            description: 'Name of the pet to retrieve',
+            required: false,
+            description: 'Name of the pets to retrieve',
             schema: {
               type: 'string',
             },
@@ -162,26 +153,6 @@ export const spec = {
                   items: {
                     $ref: '#/components/schemas/Pet',
                   },
-                },
-              },
-            },
-          },
-          '400': {
-            description: 'Name query parameter is required',
-            content: {
-              'application/json; charset=utf-8': {
-                schema: {
-                  $ref: '#/components/schemas/Error',
-                },
-              },
-            },
-          },
-          '404': {
-            description: 'No pets found with the given name',
-            content: {
-              'application/json; charset=utf-8': {
-                schema: {
-                  $ref: '#/components/schemas/Error',
                 },
               },
             },
@@ -207,22 +178,59 @@ export const spec = {
               },
             },
           },
-          '409': {
-            description: 'Pet with this ID already exists',
-            content: {
-              'application/json; charset=utf-8': {
-                schema: {
-                  $ref: '#/components/schemas/Error',
-                },
-              },
-            },
-          },
         },
         requestBody: {
           content: {
             'application/json': {
               schema: {
-                $ref: '#/components/schemas/Pet',
+                $ref: '#/components/schemas/PetCreate',
+              },
+            },
+          },
+        },
+        security: [
+          {},
+          {
+            JWT: [],
+          },
+        ],
+      },
+    },
+    '/findPetsByType': {
+      get: {
+        description: 'Get pets by type',
+        parameters: [
+          {
+            name: 'petType',
+            in: 'query',
+            required: true,
+            description: 'type of the pets to retrieve',
+            schema: {
+              $ref: '#/components/schemas/PetType',
+            },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Pets found',
+            content: {
+              'application/json; charset=utf-8': {
+                schema: {
+                  type: 'array',
+                  items: {
+                    $ref: '#/components/schemas/Pet',
+                  },
+                },
+              },
+            },
+          },
+          '400': {
+            description: 'Type query parameter is required',
+            content: {
+              'application/json; charset=utf-8': {
+                schema: {
+                  $ref: '#/components/schemas/Error',
+                },
               },
             },
           },
@@ -242,13 +250,13 @@ export const spec = {
         type: 'object',
         properties: {
           id: {
-            type: 'string',
+            type: 'number',
           },
           name: {
             type: 'string',
           },
-          type: {
-            type: 'string',
+          petType: {
+            $ref: '#/components/schemas/PetType',
           },
         },
         required: ['id', 'name', 'type'],
@@ -262,16 +270,32 @@ export const spec = {
         },
         required: ['error'],
       },
+      PetCreate: {
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+          },
+          petType: {
+            $ref: '#/components/schemas/PetType',
+          },
+        },
+        required: ['name', 'petType'],
+      },
       PetUpdate: {
         type: 'object',
         properties: {
           name: {
             type: 'string',
           },
-          type: {
-            type: 'string',
+          petType: {
+            $ref: '#/components/schemas/PetType',
           },
         },
+      },
+      PetType: {
+        type: 'string',
+        enum: ['dog', 'cat', 'fish'],
       },
     },
     securitySchemes: {

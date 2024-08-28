@@ -1,6 +1,8 @@
 Apis/DefaultApi.md
 Models/Error.md
 Models/Pet.md
+Models/PetCreate.md
+Models/PetType.md
 Models/PetUpdate.md
 Models/_health_get_200_response.md
 README.md

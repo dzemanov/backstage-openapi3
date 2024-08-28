@@ -6,6 +6,7 @@ import { Server } from 'http';
 import { wrapInOpenApiTestServer } from '@backstage/backend-openapi-utils';
 
 import { pets } from '../../dev/pets';
+import { PetType } from '../../dev/types';
 
 jest.mock('../../dev/pets', () => ({
   pets: [],
@@ -38,7 +39,7 @@ describe('createRouter', () => {
 
   describe('GET /pets/:id', () => {
     it('returns a pet if found', async () => {
-      const testPet = { id: '1', name: 'Fluffy', type: 'cat' };
+      const testPet = { id: 1, name: 'Fluffy', petType: PetType.cat };
       pets.push(testPet);
 
       const response = await request(app).get('/pets/1');
@@ -57,14 +58,14 @@ describe('createRouter', () => {
   describe('GET /pets', () => {
     it('returns pets matching the name query parameter', async () => {
       const testPets = [
-        { id: '1', name: 'Fluffy', type: 'cat' },
-        { id: '2', name: 'Rex', type: 'dog' },
-        { id: '3', name: 'Fluffy', type: 'dog' },
+        { id: 1, name: 'Fluffy', petType: PetType.cat },
+        { id: 2, name: 'Rex', petType: PetType.dog },
+        { id: 3, name: 'Fluffy', petType: PetType.dog },
       ];
       pets.push(...testPets);
       const expected = [
-        { id: '1', name: 'Fluffy', type: 'cat' },
-        { id: '3', name: 'Fluffy', type: 'dog' },
+        { id: 1, name: 'Fluffy', petType: PetType.cat },
+        { id: 3, name: 'Fluffy', petType: PetType.dog },
       ];
 
       const response = await request(app).get('/pets?name=Fluffy');
@@ -73,53 +74,80 @@ describe('createRouter', () => {
       expect(response.body).toEqual(expected);
     });
 
-    it('returns 404 if no pets match the name query parameter', async () => {
-      const response = await request(app)
-        .get('/pets?name=Fluffy')
-        .set('Authorization', 'Bearer dummy-token');
+    it('returns all pets if name query parameter is missing', async () => {
+      const testPets = [
+        { id: 1, name: 'Fluffy', petType: PetType.cat },
+        { id: 2, name: 'Rex', petType: PetType.dog },
+        { id: 3, name: 'Fluffy', petType: PetType.dog },
+      ];
+      pets.push(...testPets);
 
-      expect(response.status).toEqual(404);
-      expect(response.body).toEqual({
-        error: 'No pets found with the given name',
+      const response = await request(app).get('/pets');
+      expect(response.status).toEqual(200);
+      expect(response.body).toEqual(testPets);
+    });
+  });
+
+  describe('GET /findPetsByType', () => {
+    it('returns pets matching the petType query parameter', async () => {
+      const testPets = [
+        { id: 1, name: 'Dory', petType: PetType.fish },
+        { id: 2, name: 'Rex', petType: PetType.dog },
+        { id: 3, name: 'Nemo', petType: PetType.fish },
+      ];
+      pets.push(...testPets);
+      const expected = [
+        { id: 1, name: 'Dory', petType: PetType.fish },
+        { id: 3, name: 'Nemo', petType: PetType.fish },
+      ];
+
+      const response = await request(app).get('/findPetsByType?petType=fish');
+
+      expect(response.status).toEqual(200);
+      expect(response.body).toEqual(expected);
+    });
+
+    it('returns 400 if petType query parameter is invalid', async () => {
+      const response = await request(app).get('/findPetsByType?petType=bird');
+      expect(response.status).toEqual(400);
+      expect(response.body.error).toEqual({
+        message:
+          'request/query/petType must be equal to one of the allowed values: dog, cat, fish',
+        name: 'InputError',
       });
     });
 
-    it('returns 400 if name query parameter is missing', async () => {
-      const response = await request(app).get('/pets');
-
+    it('returns 400 if petType query parameter is missing', async () => {
+      const response = await request(app).get('/findPetsByType');
       expect(response.status).toEqual(400);
       expect(response.body.error).toEqual({
         name: 'InputError',
-        message: "request/query must have required property 'name'",
+        message: "request/query must have required property 'petType'",
       });
     });
   });
 
   describe('POST /pets', () => {
     it('creates a new pet', async () => {
-      const newPet = { id: '1', name: 'Fluffy', type: 'cat' };
+      const newPet = { name: 'Fluffy', petType: PetType.cat };
 
       const response = await request(app).post('/pets').send(newPet);
 
       expect(response.status).toEqual(201);
-      expect(response.body).toEqual(newPet);
-      expect(pets).toContainEqual(newPet);
-    });
-
-    it('returns 409 if pet with same ID already exists', async () => {
-      const existingPet = { id: '1', name: 'Fluffy', type: 'cat' };
-      pets.push(existingPet);
-
-      const response = await request(app).post('/pets').send(existingPet);
-
-      expect(response.status).toEqual(409);
       expect(response.body).toEqual({
-        error: 'Pet with this ID already exists',
+        id: 1,
+        name: 'Fluffy',
+        petType: PetType.cat,
+      });
+      expect(pets).toContainEqual({
+        id: 1,
+        name: 'Fluffy',
+        petType: PetType.cat,
       });
     });
 
-    it('returns 400 if pet does not have required params', async () => {
-      const newPet = { id: '1', type: 'cat' };
+    it('returns 400 if pet does not have required name', async () => {
+      const newPet = { petType: PetType.cat };
 
       const response = await request(app).post('/pets').send(newPet);
 
@@ -129,19 +157,31 @@ describe('createRouter', () => {
         message: "request/body must have required property 'name'",
       });
     });
+
+    it('returns 400 if pet does not have required petType', async () => {
+      const newPet = { name: 'Rex' };
+
+      const response = await request(app).post('/pets').send(newPet);
+
+      expect(response.status).toEqual(400);
+      expect(response.body.error).toEqual({
+        name: 'InputError',
+        message: "request/body must have required property 'petType'",
+      });
+    });
   });
 
   describe('PUT /pets/:id', () => {
     it('updates an existing pet', async () => {
-      const existingPet = { id: '1', name: 'Fluffy', type: 'cat' };
-      const petToUpdate = { name: 'Whiskers', type: 'cat' };
+      const existingPet = { id: 1, name: 'Fluffy', petType: PetType.cat };
+      const petToUpdate = { name: 'Whiskers', petType: PetType.cat };
       pets.push(existingPet);
 
       const response = await request(app).put('/pets/1').send(petToUpdate);
 
       expect(response.status).toEqual(200);
-      expect(response.body).toEqual({ id: '1', ...petToUpdate });
-      expect(pets[0]).toEqual({ id: '1', ...petToUpdate });
+      expect(response.body).toEqual({ id: 1, ...petToUpdate });
+      expect(pets[0]).toEqual({ id: 1, ...petToUpdate });
     });
 
     it('returns 404 if pet not found', async () => {
@@ -151,6 +191,21 @@ describe('createRouter', () => {
 
       expect(response.status).toEqual(404);
       expect(response.body).toEqual({ error: 'Pet not found' });
+    });
+
+    it('returns 400 if invalid petType', async () => {
+      const existingPet = { id: 1, name: 'Fluffy', petType: PetType.cat };
+      const petToUpdate = { petType: 'bird' };
+      pets.push(existingPet);
+
+      const response = await request(app).put('/pets/1').send(petToUpdate);
+
+      expect(response.status).toEqual(400);
+      expect(response.body.error).toEqual({
+        name: 'InputError',
+        message:
+          'request/body/petType must be equal to one of the allowed values: dog, cat, fish',
+      });
     });
   });
 });

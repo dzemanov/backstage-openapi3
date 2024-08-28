@@ -2,13 +2,41 @@
 
 All URIs are relative to _http://localhost_
 
-| Method                                   | HTTP request       | Description        |
-| ---------------------------------------- | ------------------ | ------------------ |
-| [**healthGet**](DefaultApi.md#healthGet) | **GET** /health    | Health check       |
-| [**petsGet**](DefaultApi.md#petsGet)     | **GET** /pets      |                    |
-| [**petsIdGet**](DefaultApi.md#petsIdGet) | **GET** /pets/{id} | Get a pet by ID    |
-| [**petsIdPut**](DefaultApi.md#petsIdPut) | **PUT** /pets/{id} | Update a pet by ID |
-| [**petsPost**](DefaultApi.md#petsPost)   | **POST** /pets     | Create a new pet   |
+| Method                                                   | HTTP request            | Description        |
+| -------------------------------------------------------- | ----------------------- | ------------------ |
+| [**findPetsByTypeGet**](DefaultApi.md#findPetsByTypeGet) | **GET** /findPetsByType |                    |
+| [**healthGet**](DefaultApi.md#healthGet)                 | **GET** /health         | Health check       |
+| [**petsGet**](DefaultApi.md#petsGet)                     | **GET** /pets           |                    |
+| [**petsIdGet**](DefaultApi.md#petsIdGet)                 | **GET** /pets/{id}      | Get a pet by ID    |
+| [**petsIdPut**](DefaultApi.md#petsIdPut)                 | **PUT** /pets/{id}      | Update a pet by ID |
+| [**petsPost**](DefaultApi.md#petsPost)                   | **POST** /pets          | Create a new pet   |
+
+<a name="findPetsByTypeGet"></a>
+
+# **findPetsByTypeGet**
+
+> List findPetsByTypeGet(petType)
+
+    Get pets by type
+
+### Parameters
+
+| Name        | Type                         | Description                  | Notes                                    |
+| ----------- | ---------------------------- | ---------------------------- | ---------------------------------------- |
+| **petType** | [**PetType**](../Models/.md) | type of the pets to retrieve | [default to null] [enum: dog, cat, fish] |
+
+### Return type
+
+[**List**](../Models/Pet.md)
+
+### Authorization
+
+[JWT](../README.md#JWT)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json; charset=utf-8
 
 <a name="healthGet"></a>
 
@@ -41,13 +69,13 @@ No authorization required
 
 > List petsGet(name)
 
-    Get pets by name
+    Get pets
 
 ### Parameters
 
-| Name     | Type       | Description                 | Notes             |
-| -------- | ---------- | --------------------------- | ----------------- |
-| **name** | **String** | Name of the pet to retrieve | [default to null] |
+| Name     | Type       | Description                  | Notes                        |
+| -------- | ---------- | ---------------------------- | ---------------------------- |
+| **name** | **String** | Name of the pets to retrieve | [optional] [default to null] |
 
 ### Return type
 
@@ -66,16 +94,15 @@ No authorization required
 
 # **petsIdGet**
 
-> Pet petsIdGet(id, type)
+> Pet petsIdGet(id)
 
 Get a pet by ID
 
 ### Parameters
 
-| Name     | Type       | Description                  | Notes                        |
-| -------- | ---------- | ---------------------------- | ---------------------------- |
-| **id**   | **String** |                              | [default to null]            |
-| **type** | **String** | Type of the pet to filter by | [optional] [default to null] |
+| Name   | Type       | Description | Notes             |
+| ------ | ---------- | ----------- | ----------------- |
+| **id** | **String** |             | [default to null] |
 
 ### Return type
 
@@ -122,15 +149,15 @@ Update a pet by ID
 
 # **petsPost**
 
-> Pet petsPost(Pet)
+> Pet petsPost(PetCreate)
 
 Create a new pet
 
 ### Parameters
 
-| Name    | Type                        | Description | Notes      |
-| ------- | --------------------------- | ----------- | ---------- |
-| **Pet** | [**Pet**](../Models/Pet.md) |             | [optional] |
+| Name          | Type                                    | Description | Notes      |
+| ------------- | --------------------------------------- | ----------- | ---------- |
+| **PetCreate** | [**PetCreate**](../Models/PetCreate.md) |             | [optional] |
 
 ### Return type
 
