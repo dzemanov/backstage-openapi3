@@ -22,7 +22,7 @@ metadata:
   title: 'Pet API'
   description: Pet backend plugin API
 spec:
-  type: backstage-backend-plugin
+  type: openapi
   lifecycle: production
   owner: rhdh-team
   system: rhdh
