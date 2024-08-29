@@ -67,7 +67,7 @@ export async function createRouter(
   });
 
   router.put('/pets/:id', async (req, res) => {
-    const petId = parseInt(req.params.id);
+    const petId = parseInt(req.params.id, 10);
     const { name, petType } = req.body;
 
     const pet = pets.find(p => p.id === petId);
