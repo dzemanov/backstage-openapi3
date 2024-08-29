@@ -4,7 +4,7 @@ import {
   RootConfigService,
 } from '@backstage/backend-plugin-api';
 import express from 'express';
-import { pets } from '../../dev/pets';
+import { pets, getNextId } from '../../dev/pets';
 
 import { createOpenApiRouter } from '../schema/openapi.generated';
 import { Pet, PetType } from '../../dev/types';
@@ -13,8 +13,6 @@ export interface RouterOptions {
   logger: LoggerService;
   config: RootConfigService;
 }
-
-let currentDummyId = 0;
 
 export async function createRouter(
   options: RouterOptions,
@@ -56,9 +54,8 @@ export async function createRouter(
 
   router.post('/pets', async (req, res) => {
     const { name, petType } = req.body;
-    currentDummyId += 1;
     const newPet: Pet = {
-      id: currentDummyId,
+      id: getNextId(),
       name,
       petType: petType as PetType,
     };

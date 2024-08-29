@@ -5,11 +5,12 @@ import { createRouter } from './router';
 import { Server } from 'http';
 import { wrapInOpenApiTestServer } from '@backstage/backend-openapi-utils';
 
-import { pets } from '../../dev/pets';
+import { pets, getNextId } from '../../dev/pets';
 import { PetType } from '../../dev/types';
 
 jest.mock('../../dev/pets', () => ({
   pets: [],
+  getNextId: jest.fn(),
 }));
 
 describe('createRouter', () => {
@@ -26,6 +27,8 @@ describe('createRouter', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     pets.length = 0;
+    let currentDummyId = 0;
+    (getNextId as jest.Mock).mockImplementation(() => ++currentDummyId);
   });
 
   describe('GET /health', () => {
