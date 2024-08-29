@@ -5,8 +5,7 @@ import {
 } from '@backstage/backend-plugin-api';
 import express from 'express';
 import { pets } from '../../dev/pets';
-
-import { createOpenApiRouter } from '../schema/openapi.generated';
+import Router from 'express-promise-router';
 import { Pet, PetType } from '../../dev/types';
 
 export interface RouterOptions {
@@ -21,7 +20,7 @@ export async function createRouter(
 ): Promise<express.Router> {
   const { logger, config } = options;
 
-  const router = await createOpenApiRouter();
+  const router = Router();
   router.use(express.json());
 
   router.get('/health', (_, response) => {
@@ -41,7 +40,7 @@ export async function createRouter(
   });
 
   router.get('/pets', async (req, res) => {
-    const { name } = req.query;
+    const { name } = req.query as { name?: string };
     const filteredPets = pets.filter(
       pet => !name || pet.name.toLowerCase() === name.toLowerCase(),
     );
@@ -50,6 +49,26 @@ export async function createRouter(
 
   router.get('/findPetsByType', async (req, res) => {
     const { petType } = req.query;
+
+    // validate
+    if (!petType) {
+      return res.status(400).json({
+        error: {
+          name: 'InputError',
+          message: "request/query must have required property 'petType'",
+        }
+      });
+    }
+    if (!['dog', 'cat', 'fish'].includes(petType as string)) {
+      return res.status(400).json({
+        error: {
+          name: 'InputError',
+          message:
+            'request/query/petType must be equal to one of the allowed values: dog, cat, fish',
+        },
+      });
+    }
+
     const filteredPets = pets.filter(pet => pet.petType === petType);
     return res.json(filteredPets);
   });
